@@ -515,6 +515,7 @@ class Mesh(URDFType):
         'scale': (np.ndarray, False)
     }
     _TAG = 'mesh'
+    _EXPORT_MESH = False
 
     def __init__(self, filename, scale=None, meshes=None):
         if meshes is None:
@@ -578,7 +579,10 @@ class Mesh(URDFType):
         # visual ones separate to preserve colors and textures
         fn = get_filename(path, kwargs['filename'])
         combine = node.getparent().getparent().tag == Collision._TAG
-        meshes = load_meshes(fn)
+        try:
+            meshes = load_meshes(fn)
+        except ValueError:
+            print(f"The mesh file has empty contents: {fn}")
         if combine:
             # Delete visuals for simplicity
             for m in meshes:
@@ -593,12 +597,13 @@ class Mesh(URDFType):
         fn = get_filename(path, self.filename, makedirs=True)
 
         # Export the meshes as a single file
-        meshes = self.meshes
-        if len(meshes) == 1:
-            meshes = meshes[0]
-        elif os.path.splitext(fn)[1] == '.glb':
-            meshes = trimesh.scene.Scene(geometry=meshes)
-        trimesh.exchange.export.export_mesh(meshes, fn)
+        if self._EXPORT_MESH:
+            meshes = self.meshes
+            if len(meshes) == 1:
+                meshes = meshes[0]
+            elif os.path.splitext(fn)[1] == '.glb':
+                meshes = trimesh.scene.Scene(geometry=meshes)
+            trimesh.exchange.export.export_mesh(meshes, fn)
 
         # Unparse the node
         node = self._unparse(path)
