@@ -1,6 +1,6 @@
 from .urdf import (URDFType,
                    Box, Cylinder, Sphere, Mesh, Geometry,
-                   Texture, Material,
+                   Texture, Material, SignedDistanceField,
                    Collision, Visual, Inertial,
                    JointCalibration, JointDynamics, JointLimit, JointMimic,
                    SafetyController, Actuator, TransmissionJoint,
@@ -11,7 +11,7 @@ from .version import __version__
 
 __all__ = [
     'URDFType', 'Box', 'Cylinder', 'Sphere', 'Mesh', 'Geometry',
-    'Texture', 'Material', 'Collision', 'Visual', 'Inertial',
+    'Texture', 'Material', 'Collision', 'Visual', 'Inertial', 'SignedDistanceField',
     'JointCalibration', 'JointDynamics', 'JointLimit', 'JointMimic',
     'SafetyController', 'Actuator', 'TransmissionJoint',
     'Transmission', 'Joint', 'Link', 'URDF',

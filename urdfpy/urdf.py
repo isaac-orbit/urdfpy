@@ -763,6 +763,64 @@ class Geometry(URDFType):
         return v
 
 
+class SignedDistanceField(URDFType):
+    """SDF properties of a collision mesh.
+
+    Parameters
+    ----------
+    geometry : :class:`.Geometry`
+        The geometry of the element
+    name : str, optional
+        The name of the collision geometry.
+    origin : (4,4) float, optional
+        The pose of the collision element relative to the link frame.
+        Defaults to identity.
+    resolution: int, optional
+        The SDF resolution for the collision link.
+    """
+
+    _ATTRIBS = {
+        'resolution': (int, False)
+    }
+    _TAG = 'sdf'
+
+    def __init__(self, resolution):
+        self.resolution = resolution
+
+    @property
+    def resolution(self):
+        """int : The SDF resolution for this collision element.
+        """
+        return self._resolution
+
+    @resolution.setter
+    def resolution(self, value):
+        if value is not None:
+            value = int(value)
+        self._resolution = value
+
+    @classmethod
+    def _from_xml(cls, node, path):
+        kwargs = cls._parse(node, path)
+        return SignedDistanceField(**kwargs)
+
+    def _to_xml(self, parent, path):
+        node = self._unparse(path)
+        return node
+
+    def copy(self):
+        """Create a deep copy of the SDF.
+
+        Returns
+        -------
+        :class:`.SignedDistanceField`
+            A deep copy of the SDF.
+        """
+        return SignedDistanceField(
+            resolution=self.resolution
+        )
+
+
 class Texture(URDFType):
     """An image-based texture.
 
@@ -979,6 +1037,8 @@ class Collision(URDFType):
     origin : (4,4) float, optional
         The pose of the collision element relative to the link frame.
         Defaults to identity.
+    sdf: int, optional
+        The SDF resolution for the collision link.
     """
 
     _ATTRIBS = {
@@ -986,13 +1046,15 @@ class Collision(URDFType):
     }
     _ELEMENTS = {
         'geometry': (Geometry, True, False),
+        'sdf': (SignedDistanceField, False, False),
     }
     _TAG = 'collision'
 
-    def __init__(self, name, origin, geometry):
+    def __init__(self, name, origin, geometry, sdf):
         self.geometry = geometry
         self.name = name
         self.origin = origin
+        self.sdf = sdf
 
     @property
     def geometry(self):
@@ -1028,6 +1090,19 @@ class Collision(URDFType):
     def origin(self, value):
         self._origin = configure_origin(value)
 
+    @property
+    def sdf(self):
+        """:class:`.SignedDistanceField` : The SDF resolution for this collision element.
+        """
+        return self._sdf
+
+    @sdf.setter
+    def sdf(self, value):
+        if value is not None:
+            if not isinstance(value, SignedDistanceField):
+                raise TypeError('Must set SDF with SignedDistanceField object')
+        self._sdf = value
+
     @classmethod
     def _from_xml(cls, node, path):
         kwargs = cls._parse(node, path)
@@ -1061,6 +1136,7 @@ class Collision(URDFType):
             name='{}{}'.format(prefix, self.name),
             origin=origin,
             geometry=self.geometry.copy(prefix=prefix, scale=scale),
+            sdf=self.sdf.copy()
         )
 
 
