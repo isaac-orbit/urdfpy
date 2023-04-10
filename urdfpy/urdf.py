@@ -1519,12 +1519,14 @@ class JointLimit(URDFType):
     """
 
     _ATTRIBS = {
-        'effort': (float, True),
-        'velocity': (float, True),
+        'effort': (float, False),
+        'velocity': (float, False),
         'lower': (float, False),
         'upper': (float, False),
     }
     _TAG = 'limit'
+    _DEFAULT_JOINT_EFFORT = 80.0
+    _DEFAULT_JOINT_VELOCITY = 80.0
 
     def __init__(self, effort, velocity, lower=None, upper=None):
         self.effort = effort
@@ -1540,6 +1542,9 @@ class JointLimit(URDFType):
 
     @effort.setter
     def effort(self, value):
+        if value is None:
+            value = self._DEFAULT_JOINT_EFFORT
+            print("Warning: No effort specified for joint limit, using default value of {}".format(value))
         self._effort = float(value)
 
     @property
@@ -1550,6 +1555,9 @@ class JointLimit(URDFType):
 
     @velocity.setter
     def velocity(self, value):
+        if value is None:
+            value = self._DEFAULT_JOINT_VELOCITY
+            print("Warning: No velocity specified for joint limit, using default value of {}".format(value))
         self._velocity = float(value)
 
     @property
